@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Secrets - never commit real credentials.
+# .env.example is the safe template that DOES get committed.
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
