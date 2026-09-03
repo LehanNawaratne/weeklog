@@ -20,3 +20,7 @@ export function logout(req, res) {
   res.clearCookie('token', clearCookieOptions);
   res.json({ success: true, message: 'Logged out' });
 }
+
+export function me(req, res) {
+  res.json({ success: true, data: toPublicUser(req.user) });
+}
