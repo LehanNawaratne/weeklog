@@ -88,3 +88,55 @@ export async function submitReport(reportId, userId) {
 
   return report.save();
 }
+
+export async function listMyReports(userId, { status, projectId, from, to, page, limit }) {
+  const query = { userId };
+
+  if (status) {
+    query.status = status;
+  }
+
+  if (projectId) {
+    query.projectId = projectId;
+  }
+
+  if (from || to) {
+    query.weekStart = {};
+
+    if (from) {
+      query.weekStart.$gte = getWeekRange(from).weekStart;
+    }
+
+    if (to) {
+      query.weekStart.$lte = getWeekRange(to).weekStart;
+    }
+  }
+
+  const [reports, total] = await Promise.all([
+    Report.find(query)
+      .sort({ weekStart: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Report.countDocuments(query)
+  ]);
+
+  return { reports, total, page, limit };
+}
+
+export function getMyReport(reportId, userId) {
+  return findOwnReportOrFail(reportId, userId);
+}
+
+export async function listReportVersions(reportId, user) {
+  const report = await Report.findById(reportId);
+
+  if (!report) {
+    throw new ApiError(404, 'Report not found');
+  }
+
+  if (!report.userId.equals(user._id) && user.role !== 'manager') {
+    throw new ApiError(403, 'You can only access your own reports');
+  }
+
+  return ReportVersion.find({ reportId }).sort({ versionNumber: -1 });
+}

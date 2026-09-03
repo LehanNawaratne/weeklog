@@ -67,3 +67,21 @@ export const updateReportSchema = z.object({
     .default({ development: 0, testing: 0, meetings: 0, documentation: 0 }),
   notes: z.string().trim().max(2000, 'Notes cannot be longer than 2000 characters').default('')
 });
+
+export const listReportsQuerySchema = z.object({
+  status: z
+    .enum(['draft', 'submitted', 'needs_correction', 'approved'], {
+      error: 'Unknown report status'
+    })
+    .optional(),
+  projectId: objectId.optional(),
+  from: z.coerce.date({ error: 'Provide a valid from date' }).optional(),
+  to: z.coerce.date({ error: 'Provide a valid to date' }).optional(),
+  page: z.coerce.number().int().min(1, 'Page must be 1 or more').default(1),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1, 'Limit must be 1 or more')
+    .max(100, 'Limit cannot be more than 100')
+    .default(10)
+});
