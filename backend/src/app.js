@@ -4,6 +4,7 @@ import express from 'express';
 import morgan from 'morgan';
 
 import { errorHandler, notFound } from './middleware/errorHandler.js';
+import { authRoutes } from './routes/auth.routes.js';
 
 export const app = express();
 
@@ -14,6 +15,8 @@ app.use(cookieParser());
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+
+app.use('/api/auth', authRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
