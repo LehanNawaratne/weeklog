@@ -1,4 +1,8 @@
-import { changeUserRole, listUsers } from '../services/user.service.js';
+import {
+  assignProjectsToUser,
+  changeUserRole,
+  listUsers
+} from '../services/user.service.js';
 import { toPublicUser } from '../utils/publicUser.js';
 
 export async function getUsers(req, res) {
@@ -9,6 +13,12 @@ export async function getUsers(req, res) {
 
 export async function updateUserRole(req, res) {
   const user = await changeUserRole(req.params.id, req.body.role);
+
+  res.json({ success: true, data: toPublicUser(user) });
+}
+
+export async function updateUserProjects(req, res) {
+  const user = await assignProjectsToUser(req.params.id, req.body.projectIds);
 
   res.json({ success: true, data: toPublicUser(user) });
 }

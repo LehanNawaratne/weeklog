@@ -5,6 +5,7 @@ import morgan from 'morgan';
 
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { authRoutes } from './routes/auth.routes.js';
+import { projectRoutes } from './routes/project.routes.js';
 import { userRoutes } from './routes/user.routes.js';
 
 export const app = express();
@@ -18,6 +19,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 app.use('/api/auth', authRoutes);
+app.use('/api/projects', projectRoutes);
 app.use('/api/users', userRoutes);
 
 app.use(notFound);
