@@ -85,3 +85,26 @@ export const listReportsQuerySchema = z.object({
     .max(100, 'Limit cannot be more than 100')
     .default(10)
 });
+
+export const listAllReportsQuerySchema = listReportsQuerySchema
+  .omit({ status: true })
+  .extend({
+    userId: objectId.optional(),
+    status: z
+      .enum(['submitted', 'needs_correction', 'approved'], {
+        error: 'A manager can only filter by submitted, needs_correction or approved'
+      })
+      .optional()
+  });
+
+export const reviewReportSchema = z
+  .object({
+    action: z.enum(['approve', 'request_changes'], {
+      error: 'Action must be approve or request_changes'
+    }),
+    comment: z.string().trim().max(2000, 'Comment cannot be longer than 2000 characters').default('')
+  })
+  .refine((review) => review.action === 'approve' || review.comment.length > 0, {
+    error: 'A comment is required when requesting changes',
+    path: ['comment']
+  });

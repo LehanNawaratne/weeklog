@@ -1,11 +1,17 @@
 import { Project } from '../models/Project.js';
 import { Report } from '../models/Report.js';
 import { ReportVersion } from '../models/ReportVersion.js';
+import { ReviewComment } from '../models/ReviewComment.js';
 import { ApiError } from '../utils/ApiError.js';
 import { extractReportContent } from '../utils/reportContent.js';
 import { getWeekRange } from '../utils/week.js';
 
 const EDITABLE_STATUSES = ['draft', 'needs_correction'];
+
+const REVIEW_OUTCOMES = {
+  approve: { reportStatus: 'approved', commentAction: 'approved' },
+  request_changes: { reportStatus: 'needs_correction', commentAction: 'requested_changes' }
+};
 
 async function findProjectOrFail(projectId) {
   const project = await Project.findById(projectId);
@@ -89,12 +95,8 @@ export async function submitReport(reportId, userId) {
   return report.save();
 }
 
-export async function listMyReports(userId, { status, projectId, from, to, page, limit }) {
-  const query = { userId };
-
-  if (status) {
-    query.status = status;
-  }
+function buildReportQuery({ projectId, from, to }) {
+  const query = {};
 
   if (projectId) {
     query.projectId = projectId;
@@ -110,6 +112,17 @@ export async function listMyReports(userId, { status, projectId, from, to, page,
     if (to) {
       query.weekStart.$lte = getWeekRange(to).weekStart;
     }
+  }
+
+  return query;
+}
+
+export async function listMyReports(userId, filters) {
+  const { status, page, limit } = filters;
+  const query = { ...buildReportQuery(filters), userId };
+
+  if (status) {
+    query.status = status;
   }
 
   const [reports, total] = await Promise.all([
@@ -139,4 +152,74 @@ export async function listReportVersions(reportId, user) {
   }
 
   return ReportVersion.find({ reportId }).sort({ versionNumber: -1 });
+}
+
+export async function listAllReports(filters) {
+  const { status, userId, page, limit } = filters;
+  const query = { ...buildReportQuery(filters), status: status ?? { $ne: 'draft' } };
+
+  if (userId) {
+    query.userId = userId;
+  }
+
+  const [reports, total] = await Promise.all([
+    Report.find(query)
+      .populate('userId', 'name')
+      .populate('projectId', 'name')
+      .sort({ weekStart: -1, submittedAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Report.countDocuments(query)
+  ]);
+
+  return { reports, total, page, limit };
+}
+
+export async function getReportWithHistory(reportId, user) {
+  const report = await Report.findById(reportId)
+    .populate('userId', 'name email')
+    .populate('projectId', 'name');
+
+  if (!report) {
+    throw new ApiError(404, 'Report not found');
+  }
+
+  if (report.status === 'draft' && !report.userId._id.equals(user._id)) {
+    throw new ApiError(403, 'This report has not been submitted yet');
+  }
+
+  const [versions, comments] = await Promise.all([
+    ReportVersion.find({ reportId }).sort({ versionNumber: -1 }),
+    ReviewComment.find({ reportId }).populate('managerId', 'name').sort({ createdAt: -1 })
+  ]);
+
+  return { report, versions, comments };
+}
+
+export async function reviewReport(reportId, { action, comment }, managerId) {
+  const report = await Report.findById(reportId);
+
+  if (!report) {
+    throw new ApiError(404, 'Report not found');
+  }
+
+  if (report.status !== 'submitted') {
+    throw new ApiError(409, `Only a submitted report can be reviewed, this one is ${report.status}`);
+  }
+
+  const outcome = REVIEW_OUTCOMES[action];
+
+  await ReviewComment.create({
+    reportId: report._id,
+    versionId: report.currentVersionId,
+    managerId,
+    action: outcome.commentAction,
+    comment
+  });
+
+  report.status = outcome.reportStatus;
+  report.latestComment = comment;
+  report.reviewedAt = new Date();
+
+  return report.save();
 }
