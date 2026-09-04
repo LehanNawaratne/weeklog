@@ -1,4 +1,10 @@
-import { acceptInvite, loginUser, registerUser } from '../services/auth.service.js';
+import {
+  acceptInvite,
+  changePassword,
+  loginUser,
+  registerUser,
+  updateProfile
+} from '../services/auth.service.js';
 import { toPublicUser } from '../utils/publicUser.js';
 import { clearCookieOptions, cookieOptions, signToken } from '../utils/token.js';
 
@@ -30,4 +36,16 @@ export async function acceptInvitation(req, res) {
 
   res.cookie('token', signToken(user), cookieOptions);
   res.json({ success: true, data: toPublicUser(user) });
+}
+
+export async function updateMyProfile(req, res) {
+  const user = await updateProfile(req.user._id, req.body);
+
+  res.json({ success: true, data: toPublicUser(user) });
+}
+
+export async function updateMyPassword(req, res) {
+  await changePassword(req.user._id, req.body);
+
+  res.json({ success: true, message: 'Password updated' });
 }

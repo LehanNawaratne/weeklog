@@ -59,3 +59,31 @@ export async function acceptInvite({ token, password }) {
 
   return user.save();
 }
+
+export async function updateProfile(userId, changes) {
+  const user = await User.findById(userId);
+
+  if (changes.email && changes.email !== user.email) {
+    const taken = await User.findOne({ email: changes.email });
+
+    if (taken) {
+      throw new ApiError(409, 'Email already registered');
+    }
+  }
+
+  Object.assign(user, changes);
+
+  return user.save();
+}
+
+export async function changePassword(userId, { currentPassword, newPassword }) {
+  const user = await User.findById(userId).select('+passwordHash');
+
+  if (!user.passwordHash || !(await bcrypt.compare(currentPassword, user.passwordHash))) {
+    throw new ApiError(401, 'Your current password is not correct');
+  }
+
+  user.passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+  return user.save();
+}

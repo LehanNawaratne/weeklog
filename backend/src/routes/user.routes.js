@@ -4,6 +4,7 @@ import {
   getUserById,
   getUsers,
   postUserInvite,
+  removeUser,
   updateUserProjects,
   updateUserRole
 } from '../controllers/user.controller.js';
@@ -38,3 +39,4 @@ userRoutes.patch(
 );
 
 userRoutes.post('/invite', requireRole('manager'), validate(inviteUserSchema), postUserInvite);
+userRoutes.delete('/:id', requireRole('manager'), removeUser);

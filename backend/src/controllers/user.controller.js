@@ -1,6 +1,7 @@
 import {
   assignProjectsToUser,
   changeUserRole,
+  deactivateUser,
   getUserWithStats,
   inviteUser,
   listUsers
@@ -39,4 +40,10 @@ export async function postUserInvite(req, res) {
   const { user, token } = await inviteUser(req.body);
 
   res.status(201).json({ success: true, data: { ...toPublicUser(user), inviteToken: token } });
+}
+
+export async function removeUser(req, res) {
+  const user = await deactivateUser(req.params.id, req.user);
+
+  res.json({ success: true, data: toPublicUser(user) });
 }

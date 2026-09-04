@@ -59,6 +59,14 @@ async function findUserOrFail(userId) {
   return user;
 }
 
+async function ensureAnotherManagerExists(message) {
+  const managerCount = await User.countDocuments({ role: 'manager', isActive: true });
+
+  if (managerCount <= 1) {
+    throw new ApiError(400, message);
+  }
+}
+
 export async function changeUserRole(userId, role) {
   const user = await findUserOrFail(userId);
 
@@ -67,11 +75,7 @@ export async function changeUserRole(userId, role) {
   }
 
   if (user.role === 'manager') {
-    const managerCount = await User.countDocuments({ role: 'manager', isActive: true });
-
-    if (managerCount <= 1) {
-      throw new ApiError(400, 'Cannot demote the last remaining manager');
-    }
+    await ensureAnotherManagerExists('Cannot demote the last remaining manager');
   }
 
   user.role = role;
@@ -112,4 +116,24 @@ export async function inviteUser({ name, email, role }) {
   });
 
   return { user, token };
+}
+
+export async function deactivateUser(userId, requester) {
+  if (requester._id.equals(userId)) {
+    throw new ApiError(400, 'You cannot remove your own account');
+  }
+
+  const user = await findUserOrFail(userId);
+
+  if (!user.isActive) {
+    return user;
+  }
+
+  if (user.role === 'manager') {
+    await ensureAnotherManagerExists('Cannot remove the last remaining manager');
+  }
+
+  user.isActive = false;
+
+  return user.save();
 }
