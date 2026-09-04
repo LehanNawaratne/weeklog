@@ -5,6 +5,7 @@ import {
   listAllReports,
   listMyReports,
   listReportVersions,
+  reviewReport,
   submitReport,
   updateReport
 } from '../services/report.service.js';
@@ -73,4 +74,10 @@ export async function getReportDetail(req, res) {
       comments: comments.map(toPublicComment)
     }
   });
+}
+
+export async function postReportReview(req, res) {
+  const report = await reviewReport(req.params.id, req.body, req.user._id);
+
+  res.json({ success: true, data: toPublicReport(report) });
 }

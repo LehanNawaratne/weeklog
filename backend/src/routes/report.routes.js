@@ -8,6 +8,7 @@ import {
   getMyReports,
   getReportDetail,
   getReportVersions,
+  postReportReview,
   submitReportForReview
 } from '../controllers/report.controller.js';
 import { requireAuth, requireRole } from '../middleware/auth.js';
@@ -16,6 +17,7 @@ import {
   createReportSchema,
   listAllReportsQuerySchema,
   listReportsQuerySchema,
+  reviewReportSchema,
   updateReportSchema
 } from '../validators/report.validator.js';
 
@@ -39,3 +41,9 @@ reportRoutes.get('/:id', requireRole('manager'), getReportDetail);
 reportRoutes.post('/', validate(createReportSchema), addReport);
 reportRoutes.put('/:id', validate(updateReportSchema), editReport);
 reportRoutes.post('/:id/submit', submitReportForReview);
+reportRoutes.post(
+  '/:id/review',
+  requireRole('manager'),
+  validate(reviewReportSchema),
+  postReportReview
+);

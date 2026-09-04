@@ -8,6 +8,11 @@ import { getWeekRange } from '../utils/week.js';
 
 const EDITABLE_STATUSES = ['draft', 'needs_correction'];
 
+const REVIEW_OUTCOMES = {
+  approve: { reportStatus: 'approved', commentAction: 'approved' },
+  request_changes: { reportStatus: 'needs_correction', commentAction: 'requested_changes' }
+};
+
 async function findProjectOrFail(projectId) {
   const project = await Project.findById(projectId);
 
@@ -189,4 +194,32 @@ export async function getReportWithHistory(reportId, user) {
   ]);
 
   return { report, versions, comments };
+}
+
+export async function reviewReport(reportId, { action, comment }, managerId) {
+  const report = await Report.findById(reportId);
+
+  if (!report) {
+    throw new ApiError(404, 'Report not found');
+  }
+
+  if (report.status !== 'submitted') {
+    throw new ApiError(409, `Only a submitted report can be reviewed, this one is ${report.status}`);
+  }
+
+  const outcome = REVIEW_OUTCOMES[action];
+
+  await ReviewComment.create({
+    reportId: report._id,
+    versionId: report.currentVersionId,
+    managerId,
+    action: outcome.commentAction,
+    comment
+  });
+
+  report.status = outcome.reportStatus;
+  report.latestComment = comment;
+  report.reviewedAt = new Date();
+
+  return report.save();
 }

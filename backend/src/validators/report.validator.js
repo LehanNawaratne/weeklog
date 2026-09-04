@@ -96,3 +96,15 @@ export const listAllReportsQuerySchema = listReportsQuerySchema
       })
       .optional()
   });
+
+export const reviewReportSchema = z
+  .object({
+    action: z.enum(['approve', 'request_changes'], {
+      error: 'Action must be approve or request_changes'
+    }),
+    comment: z.string().trim().max(2000, 'Comment cannot be longer than 2000 characters').default('')
+  })
+  .refine((review) => review.action === 'approve' || review.comment.length > 0, {
+    error: 'A comment is required when requesting changes',
+    path: ['comment']
+  });
