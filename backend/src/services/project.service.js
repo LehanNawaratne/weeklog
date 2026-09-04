@@ -1,5 +1,6 @@
 import { Project } from '../models/Project.js';
 import { Report } from '../models/Report.js';
+import { User } from '../models/User.js';
 import { ApiError } from '../utils/ApiError.js';
 
 async function ensureNameIsFree(name, excludeId) {
@@ -53,6 +54,8 @@ export async function deleteProject(projectId) {
       `This project is used by ${reportCount} report${reportCount === 1 ? '' : 's'} and cannot be deleted`
     );
   }
+
+  await User.updateMany({ assignedProjects: projectId }, { $pull: { assignedProjects: projectId } });
 
   await project.deleteOne();
 }
