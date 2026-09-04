@@ -1,0 +1,3 @@
+export const SUBMISSION_DEADLINE_DAY_OFFSET = 4;
+
+export const SUBMISSION_DEADLINE_HOUR = 17;
