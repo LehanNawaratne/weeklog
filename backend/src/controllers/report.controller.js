@@ -1,13 +1,15 @@
 import {
   createReport,
   getMyReport,
+  getReportWithHistory,
   listAllReports,
   listMyReports,
   listReportVersions,
   submitReport,
   updateReport
 } from '../services/report.service.js';
-import { toPublicReport, toReportSummary } from '../utils/publicReport.js';
+import { toPublicComment } from '../utils/publicComment.js';
+import { toPublicReport, toReportDetail, toReportSummary } from '../utils/publicReport.js';
 import { toPublicVersion } from '../utils/publicVersion.js';
 
 export async function addReport(req, res) {
@@ -57,5 +59,18 @@ export async function getAllReports(req, res) {
     success: true,
     data: reports.map(toReportSummary),
     pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+  });
+}
+
+export async function getReportDetail(req, res) {
+  const { report, versions, comments } = await getReportWithHistory(req.params.id, req.user);
+
+  res.json({
+    success: true,
+    data: {
+      report: toReportDetail(report),
+      versions: versions.map(toPublicVersion),
+      comments: comments.map(toPublicComment)
+    }
   });
 }

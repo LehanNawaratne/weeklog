@@ -6,6 +6,7 @@ import {
   getAllReports,
   getMyReportById,
   getMyReports,
+  getReportDetail,
   getReportVersions,
   submitReportForReview
 } from '../controllers/report.controller.js';
@@ -32,6 +33,8 @@ reportRoutes.get(
   validate(listAllReportsQuerySchema, 'query'),
   getAllReports
 );
+
+reportRoutes.get('/:id', requireRole('manager'), getReportDetail);
 
 reportRoutes.post('/', validate(createReportSchema), addReport);
 reportRoutes.put('/:id', validate(updateReportSchema), editReport);

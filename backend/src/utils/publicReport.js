@@ -36,3 +36,16 @@ export function toReportSummary(report) {
     reviewedAt: report.reviewedAt
   };
 }
+
+export function toReportDetail(report) {
+  const user = report.userId;
+  const project = report.projectId;
+
+  return {
+    ...toPublicReport(report),
+    userId: user._id,
+    projectId: project._id,
+    user: { id: user._id, name: user.name, email: user.email },
+    project: { id: project._id, name: project.name }
+  };
+}

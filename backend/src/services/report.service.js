@@ -1,6 +1,7 @@
 import { Project } from '../models/Project.js';
 import { Report } from '../models/Report.js';
 import { ReportVersion } from '../models/ReportVersion.js';
+import { ReviewComment } from '../models/ReviewComment.js';
 import { ApiError } from '../utils/ApiError.js';
 import { extractReportContent } from '../utils/reportContent.js';
 import { getWeekRange } from '../utils/week.js';
@@ -167,4 +168,25 @@ export async function listAllReports(filters) {
   ]);
 
   return { reports, total, page, limit };
+}
+
+export async function getReportWithHistory(reportId, user) {
+  const report = await Report.findById(reportId)
+    .populate('userId', 'name email')
+    .populate('projectId', 'name');
+
+  if (!report) {
+    throw new ApiError(404, 'Report not found');
+  }
+
+  if (report.status === 'draft' && !report.userId._id.equals(user._id)) {
+    throw new ApiError(403, 'This report has not been submitted yet');
+  }
+
+  const [versions, comments] = await Promise.all([
+    ReportVersion.find({ reportId }).sort({ versionNumber: -1 }),
+    ReviewComment.find({ reportId }).populate('managerId', 'name').sort({ createdAt: -1 })
+  ]);
+
+  return { report, versions, comments };
 }
