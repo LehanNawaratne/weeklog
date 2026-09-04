@@ -1,14 +1,25 @@
 import {
   assignProjectsToUser,
   changeUserRole,
+  getUserWithStats,
   listUsers
 } from '../services/user.service.js';
 import { toPublicUser } from '../utils/publicUser.js';
 
 export async function getUsers(req, res) {
-  const users = await listUsers();
+  const { users, total, page, limit } = await listUsers(req.validatedQuery);
 
-  res.json({ success: true, data: users.map(toPublicUser) });
+  res.json({
+    success: true,
+    data: users.map(toPublicUser),
+    pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+  });
+}
+
+export async function getUserById(req, res) {
+  const { user, reportStats } = await getUserWithStats(req.params.id, req.user);
+
+  res.json({ success: true, data: { ...toPublicUser(user), reportStats } });
 }
 
 export async function updateUserRole(req, res) {

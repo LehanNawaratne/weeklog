@@ -1,9 +1,51 @@
 import { Project } from '../models/Project.js';
+import { Report } from '../models/Report.js';
 import { User } from '../models/User.js';
 import { ApiError } from '../utils/ApiError.js';
 
-export function listUsers() {
-  return User.find().sort({ name: 1 });
+export async function listUsers({ page, limit }) {
+  const [users, total] = await Promise.all([
+    User.find()
+      .sort({ name: 1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    User.countDocuments()
+  ]);
+
+  return { users, total, page, limit };
+}
+
+const countWhenStatusIs = (status) => ({ $sum: { $cond: [{ $eq: ['$status', status] }, 1, 0] } });
+
+export async function getUserWithStats(userId, requester) {
+  if (!requester._id.equals(userId) && requester.role !== 'manager') {
+    throw new ApiError(403, 'You can only view your own profile');
+  }
+
+  const user = await findUserOrFail(userId);
+
+  const [stats] = await Report.aggregate([
+    { $match: { userId: user._id, submittedAt: { $ne: null } } },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: 1 },
+        submitted: countWhenStatusIs('submitted'),
+        needsCorrection: countWhenStatusIs('needs_correction'),
+        approved: countWhenStatusIs('approved')
+      }
+    }
+  ]);
+
+  return {
+    user,
+    reportStats: {
+      total: stats?.total ?? 0,
+      submitted: stats?.submitted ?? 0,
+      needsCorrection: stats?.needsCorrection ?? 0,
+      approved: stats?.approved ?? 0
+    }
+  };
 }
 
 async function findUserOrFail(userId) {
