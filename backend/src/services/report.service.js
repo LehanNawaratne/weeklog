@@ -136,9 +136,6 @@ export async function listMyReports(userId, filters) {
   return { reports, total, page, limit };
 }
 
-export function getMyReport(reportId, userId) {
-  return findOwnReportOrFail(reportId, userId);
-}
 
 export async function listReportVersions(reportId, user) {
   const report = await Report.findById(reportId);
@@ -175,7 +172,7 @@ export async function listAllReports(filters) {
   return { reports, total, page, limit };
 }
 
-export async function getReportWithHistory(reportId, user) {
+async function findReportWithNamesOrFail(reportId) {
   const report = await Report.findById(reportId)
     .populate('userId', 'name email')
     .populate('projectId', 'name');
@@ -184,16 +181,38 @@ export async function getReportWithHistory(reportId, user) {
     throw new ApiError(404, 'Report not found');
   }
 
+  return report;
+}
+
+async function withHistory(report) {
+  const [versions, comments] = await Promise.all([
+    ReportVersion.find({ reportId: report._id }).sort({ versionNumber: -1 }),
+    ReviewComment.find({ reportId: report._id })
+      .populate('managerId', 'name')
+      .sort({ createdAt: -1 })
+  ]);
+
+  return { report, versions, comments };
+}
+
+export async function getMyReportWithHistory(reportId, userId) {
+  const report = await findReportWithNamesOrFail(reportId);
+
+  if (!report.userId._id.equals(userId)) {
+    throw new ApiError(403, 'You can only access your own reports');
+  }
+
+  return withHistory(report);
+}
+
+export async function getReportWithHistory(reportId, user) {
+  const report = await findReportWithNamesOrFail(reportId);
+
   if (report.status === 'draft' && !report.userId._id.equals(user._id)) {
     throw new ApiError(403, 'This report has not been submitted yet');
   }
 
-  const [versions, comments] = await Promise.all([
-    ReportVersion.find({ reportId }).sort({ versionNumber: -1 }),
-    ReviewComment.find({ reportId }).populate('managerId', 'name').sort({ createdAt: -1 })
-  ]);
-
-  return { report, versions, comments };
+  return withHistory(report);
 }
 
 export async function reviewReport(reportId, { action, comment }, managerId) {

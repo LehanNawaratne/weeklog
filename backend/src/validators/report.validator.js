@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { objectId } from './common.js';
+import { objectId, paginationFields } from './common.js';
 
 const percentage = (label) =>
   z
@@ -77,13 +77,7 @@ export const listReportsQuerySchema = z.object({
   projectId: objectId.optional(),
   from: z.coerce.date({ error: 'Provide a valid from date' }).optional(),
   to: z.coerce.date({ error: 'Provide a valid to date' }).optional(),
-  page: z.coerce.number().int().min(1, 'Page must be 1 or more').default(1),
-  limit: z.coerce
-    .number()
-    .int()
-    .min(1, 'Limit must be 1 or more')
-    .max(100, 'Limit cannot be more than 100')
-    .default(10)
+  ...paginationFields
 });
 
 export const listAllReportsQuerySchema = listReportsQuerySchema

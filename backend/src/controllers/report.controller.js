@@ -1,6 +1,6 @@
 import {
   createReport,
-  getMyReport,
+  getMyReportWithHistory,
   getReportWithHistory,
   listAllReports,
   listMyReports,
@@ -42,9 +42,19 @@ export async function getMyReports(req, res) {
 }
 
 export async function getMyReportById(req, res) {
-  const report = await getMyReport(req.params.id, req.user._id);
+  const { report, versions, comments } = await getMyReportWithHistory(
+    req.params.id,
+    req.user._id
+  );
 
-  res.json({ success: true, data: toPublicReport(report) });
+  res.json({
+    success: true,
+    data: {
+      report: toReportDetail(report),
+      versions: versions.map(toPublicVersion),
+      comments: comments.map(toPublicComment)
+    }
+  });
 }
 
 export async function getReportVersions(req, res) {
