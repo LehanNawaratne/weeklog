@@ -1,3 +1,5 @@
 export const SUBMISSION_DEADLINE_DAY_OFFSET = 4;
 
 export const SUBMISSION_DEADLINE_HOUR = 17;
+
+export const DEFAULT_CHART_WEEKS = 8;
