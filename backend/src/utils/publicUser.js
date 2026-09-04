@@ -4,6 +4,7 @@ export function toPublicUser(user) {
     name: user.name,
     email: user.email,
     role: user.role,
+    accountStatus: user.accountStatus,
     assignedProjects: user.assignedProjects,
     isActive: user.isActive,
     createdAt: user.createdAt

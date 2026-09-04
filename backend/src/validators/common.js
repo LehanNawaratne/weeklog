@@ -14,3 +14,5 @@ export const paginationFields = {
     .max(100, 'Limit cannot be more than 100')
     .default(10)
 };
+
+export const strongPassword = z.string().min(8, 'Password must be at least 8 characters');

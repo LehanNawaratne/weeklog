@@ -3,6 +3,7 @@ import { Router } from 'express';
 import {
   getUserById,
   getUsers,
+  postUserInvite,
   updateUserProjects,
   updateUserRole
 } from '../controllers/user.controller.js';
@@ -10,6 +11,7 @@ import { requireAuth, requireRole } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
 import {
   assignProjectsSchema,
+  inviteUserSchema,
   listUsersQuerySchema,
   updateRoleSchema
 } from '../validators/user.validator.js';
@@ -34,3 +36,5 @@ userRoutes.patch(
   validate(assignProjectsSchema),
   updateUserProjects
 );
+
+userRoutes.post('/invite', requireRole('manager'), validate(inviteUserSchema), postUserInvite);

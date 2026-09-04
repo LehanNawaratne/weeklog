@@ -2,6 +2,7 @@ import {
   assignProjectsToUser,
   changeUserRole,
   getUserWithStats,
+  inviteUser,
   listUsers
 } from '../services/user.service.js';
 import { toPublicUser } from '../utils/publicUser.js';
@@ -32,4 +33,10 @@ export async function updateUserProjects(req, res) {
   const user = await assignProjectsToUser(req.params.id, req.body.projectIds);
 
   res.json({ success: true, data: toPublicUser(user) });
+}
+
+export async function postUserInvite(req, res) {
+  const { user, token } = await inviteUser(req.body);
+
+  res.status(201).json({ success: true, data: { ...toPublicUser(user), inviteToken: token } });
 }

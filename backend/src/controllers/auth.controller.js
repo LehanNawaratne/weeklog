@@ -1,4 +1,4 @@
-import { loginUser, registerUser } from '../services/auth.service.js';
+import { acceptInvite, loginUser, registerUser } from '../services/auth.service.js';
 import { toPublicUser } from '../utils/publicUser.js';
 import { clearCookieOptions, cookieOptions, signToken } from '../utils/token.js';
 
@@ -23,4 +23,11 @@ export function logout(req, res) {
 
 export function me(req, res) {
   res.json({ success: true, data: toPublicUser(req.user) });
+}
+
+export async function acceptInvitation(req, res) {
+  const user = await acceptInvite(req.body);
+
+  res.cookie('token', signToken(user), cookieOptions);
+  res.json({ success: true, data: toPublicUser(user) });
 }

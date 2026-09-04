@@ -2,6 +2,7 @@ import { Project } from '../models/Project.js';
 import { Report } from '../models/Report.js';
 import { User } from '../models/User.js';
 import { ApiError } from '../utils/ApiError.js';
+import { createInviteToken } from '../utils/inviteToken.js';
 
 export async function listUsers({ page, limit }) {
   const [users, total] = await Promise.all([
@@ -90,4 +91,25 @@ export async function assignProjectsToUser(userId, projectIds) {
   user.assignedProjects = projectIds;
 
   return user.save();
+}
+
+export async function inviteUser({ name, email, role }) {
+  const existing = await User.findOne({ email });
+
+  if (existing) {
+    throw new ApiError(409, 'Email already registered');
+  }
+
+  const { token, inviteTokenHash, inviteExpiresAt } = createInviteToken();
+
+  const user = await User.create({
+    name,
+    email,
+    role,
+    accountStatus: 'invited',
+    inviteTokenHash,
+    inviteExpiresAt
+  });
+
+  return { user, token };
 }
