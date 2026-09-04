@@ -89,12 +89,8 @@ export async function submitReport(reportId, userId) {
   return report.save();
 }
 
-export async function listMyReports(userId, { status, projectId, from, to, page, limit }) {
-  const query = { userId };
-
-  if (status) {
-    query.status = status;
-  }
+function buildReportQuery({ projectId, from, to }) {
+  const query = {};
 
   if (projectId) {
     query.projectId = projectId;
@@ -110,6 +106,17 @@ export async function listMyReports(userId, { status, projectId, from, to, page,
     if (to) {
       query.weekStart.$lte = getWeekRange(to).weekStart;
     }
+  }
+
+  return query;
+}
+
+export async function listMyReports(userId, filters) {
+  const { status, page, limit } = filters;
+  const query = { ...buildReportQuery(filters), userId };
+
+  if (status) {
+    query.status = status;
   }
 
   const [reports, total] = await Promise.all([
@@ -139,4 +146,25 @@ export async function listReportVersions(reportId, user) {
   }
 
   return ReportVersion.find({ reportId }).sort({ versionNumber: -1 });
+}
+
+export async function listAllReports(filters) {
+  const { status, userId, page, limit } = filters;
+  const query = { ...buildReportQuery(filters), status: status ?? { $ne: 'draft' } };
+
+  if (userId) {
+    query.userId = userId;
+  }
+
+  const [reports, total] = await Promise.all([
+    Report.find(query)
+      .populate('userId', 'name')
+      .populate('projectId', 'name')
+      .sort({ weekStart: -1, submittedAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit),
+    Report.countDocuments(query)
+  ]);
+
+  return { reports, total, page, limit };
 }

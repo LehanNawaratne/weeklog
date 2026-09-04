@@ -85,3 +85,14 @@ export const listReportsQuerySchema = z.object({
     .max(100, 'Limit cannot be more than 100')
     .default(10)
 });
+
+export const listAllReportsQuerySchema = listReportsQuerySchema
+  .omit({ status: true })
+  .extend({
+    userId: objectId.optional(),
+    status: z
+      .enum(['submitted', 'needs_correction', 'approved'], {
+        error: 'A manager can only filter by submitted, needs_correction or approved'
+      })
+      .optional()
+  });
