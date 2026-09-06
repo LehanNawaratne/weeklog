@@ -3,11 +3,12 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { AuthShell } from '@/components/auth-shell'
+import { FormField } from '@/components/form-field'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { homePathFor, useAuth } from '@/context/auth-context'
+import { toFieldErrors } from '@/lib/form-errors'
 
 export function RegisterPage() {
   const { signUp } = useAuth()
@@ -15,7 +16,10 @@ export function RegisterPage() {
 
   const [form, setForm] = useState({ name: '', email: '', password: '' })
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const showBanner = error && Object.keys(fieldErrors).length === 0
 
   function handleChange(event) {
     const { name, value } = event.target
@@ -26,6 +30,7 @@ export function RegisterPage() {
     event.preventDefault()
 
     setError('')
+    setFieldErrors({})
     setIsSubmitting(true)
 
     try {
@@ -33,6 +38,9 @@ export function RegisterPage() {
       navigate(homePathFor(user), { replace: true })
     } catch (failure) {
       setError(failure.message)
+      setFieldErrors(
+        failure.status === 409 ? { email: failure.message } : toFieldErrors(failure)
+      )
     } finally {
       setIsSubmitting(false)
     }
@@ -52,17 +60,15 @@ export function RegisterPage() {
       }
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {error ? (
+        {showBanner ? (
           <Alert variant="destructive">
             <AlertCircle />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         ) : null}
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="name">Full name</Label>
+        <FormField id="name" label="Full name" error={fieldErrors.name}>
           <Input
-            id="name"
             name="name"
             autoComplete="name"
             placeholder="Sam Fernando"
@@ -71,12 +77,10 @@ export function RegisterPage() {
             minLength={2}
             required
           />
-        </div>
+        </FormField>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="email">Email</Label>
+        <FormField id="email" label="Email" error={fieldErrors.email}>
           <Input
-            id="email"
             name="email"
             type="email"
             autoComplete="email"
@@ -85,12 +89,15 @@ export function RegisterPage() {
             onChange={handleChange}
             required
           />
-        </div>
+        </FormField>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="password">Password</Label>
+        <FormField
+          id="password"
+          label="Password"
+          error={fieldErrors.password}
+          hint="At least 8 characters."
+        >
           <Input
-            id="password"
             name="password"
             type="password"
             autoComplete="new-password"
@@ -99,8 +106,7 @@ export function RegisterPage() {
             minLength={8}
             required
           />
-          <p className="text-muted-foreground text-xs">At least 8 characters.</p>
-        </div>
+        </FormField>
 
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? <Loader2 className="animate-spin" /> : null}
