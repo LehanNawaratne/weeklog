@@ -1,0 +1,160 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------------------
+   WeekLog theme
+   ---------------------------------------------------------------------------
+   Colours come from the dashboard reference design:
+     - mint green  = data and "good" states (charts, up arrows, active nav)
+     - black       = buttons and actions
+     - dark teal   = the sidebar rail
+     - white cards on a light grey page
+
+   Rule to remember: green is for DATA, black is for BUTTONS. Never swap them.
+
+   Two layers of names are used below:
+     1. `@theme inline` tells Tailwind which class names to generate,
+        e.g. `--color-brand` creates `bg-brand`, `text-brand`, `border-brand`.
+     2. `:root` holds the actual colour values. To recolour the app,
+        edit `:root` only.
+--------------------------------------------------------------------------- */
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Geist Variable', sans-serif;
+
+    /* WeekLog additions */
+    --color-brand: var(--brand);
+    --color-brand-foreground: var(--brand-foreground);
+    --color-brand-muted: var(--brand-muted);
+
+    --color-status-draft: var(--status-draft);
+    --color-status-draft-bg: var(--status-draft-bg);
+    --color-status-submitted: var(--status-submitted);
+    --color-status-submitted-bg: var(--status-submitted-bg);
+    --color-status-correction: var(--status-correction);
+    --color-status-correction-bg: var(--status-correction-bg);
+    --color-status-approved: var(--status-approved);
+    --color-status-approved-bg: var(--status-approved-bg);
+
+    /* shadcn defaults */
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    /* Page and cards */
+    --background: #f5f6f8;          /* light grey page behind everything */
+    --foreground: #0f1419;          /* main text, near black */
+    --card: #ffffff;                /* every card is white */
+    --card-foreground: #0f1419;
+    --popover: #ffffff;
+    --popover-foreground: #0f1419;
+
+    /* Buttons: solid black with white text */
+    --primary: #0f1419;
+    --primary-foreground: #ffffff;
+
+    /* Quiet greys for secondary buttons, labels and hover states */
+    --secondary: #f1f2f4;
+    --secondary-foreground: #0f1419;
+    --muted: #f1f2f4;
+    --muted-foreground: #6b7280;    /* small grey labels */
+    --accent: #f1f2f4;              /* hover background, NOT the brand green */
+    --accent-foreground: #0f1419;
+
+    /* Brand green: charts, active nav, positive numbers */
+    --brand: #10b981;
+    --brand-foreground: #ffffff;
+    --brand-muted: #d1fae5;
+
+    /* Report statuses. Each has a text colour and a soft background. */
+    --status-draft: #6b7280;
+    --status-draft-bg: #f3f4f6;
+    --status-submitted: #b45309;
+    --status-submitted-bg: #fef3c7;
+    --status-correction: #dc2626;
+    --status-correction-bg: #fee2e2;
+    --status-approved: #047857;
+    --status-approved-bg: #d1fae5;
+
+    /* Errors and destructive actions */
+    --destructive: #ef4444;
+
+    /* Lines and focus rings */
+    --border: #e5e7eb;
+    --input: #e5e7eb;
+    --ring: #10b981;
+
+    /* Chart series, in the order charts will use them */
+    --chart-1: #10b981;             /* mint green */
+    --chart-2: #0f3b3e;             /* dark teal */
+    --chart-3: #f59e0b;             /* amber */
+    --chart-4: #ef4444;             /* red */
+    --chart-5: #6366f1;             /* indigo */
+
+    /* Corner rounding. 0.75rem = 12px, matching the reference cards. */
+    --radius: 0.75rem;
+
+    /* The dark teal sidebar rail */
+    --sidebar: #0f3b3e;
+    --sidebar-foreground: #cfe3e1;          /* inactive icons, muted */
+    --sidebar-primary: #10b981;             /* the active item */
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #17504f;              /* hover background */
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: #17504f;
+    --sidebar-ring: #10b981;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground antialiased;
+    }
+  html {
+    @apply font-sans;
+    }
+}
