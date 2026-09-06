@@ -99,7 +99,6 @@ export function RegisterPage() {
             minLength={8}
             required
           />
-          {/* Matches the backend rule, so the browser catches it first. */}
           <p className="text-muted-foreground text-xs">At least 8 characters.</p>
         </div>
 

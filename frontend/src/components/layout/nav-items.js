@@ -8,16 +8,6 @@ import {
   Users
 } from 'lucide-react'
 
-/**
- * The whole navigation menu, in one list.
- *
- * `role: 'manager'` means only managers see that link. An item with no role is
- * shown to everyone - managers write weekly reports too, so "My reports" is
- * not member-only.
- *
- * `end: true` means the link is only highlighted on an exact URL match.
- * Without it, "/dashboard" would stay highlighted while on "/dashboard/reports".
- */
 export const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutGrid, role: 'manager', end: true },
   { to: '/dashboard/reports', label: 'Team reports', icon: ClipboardList, role: 'manager' },

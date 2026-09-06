@@ -1,13 +1,3 @@
-/**
- * The title block at the top of every page.
- *
- * Anything passed as children appears on the right, which is where the page's
- * main action button goes - the same place "Export report" sits in the design.
- *
- *   <PageHeader title="Projects" subtitle="...">
- *     <Button>Add project</Button>
- *   </PageHeader>
- */
 export function PageHeader({ title, subtitle, children }) {
   return (
     <div className="mb-6 flex flex-wrap items-start justify-between gap-3">

@@ -6,12 +6,6 @@ import { cn } from '@/lib/utils'
 
 import { navItemsFor } from './nav-items'
 
-/**
- * The dark teal icon rail down the left side, matching the reference design.
- *
- * NavLink is React Router's version of a link that knows whether it points at
- * the page you are currently on. It hands us `isActive` so we can highlight it.
- */
 function SidebarLink({ to, label, icon: Icon, end }) {
   return (
     <Tooltip>
@@ -37,7 +31,6 @@ function SidebarLink({ to, label, icon: Icon, end }) {
   )
 }
 
-// Hidden on small screens - the top bar shows a menu button there instead.
 export function Sidebar() {
   const { user } = useAuth()
 
@@ -50,7 +43,6 @@ export function Sidebar() {
   )
 }
 
-// The same links with visible labels, used inside the mobile slide-out menu.
 export function SidebarLinkList({ onNavigate }) {
   const { user } = useAuth()
 

@@ -17,7 +17,6 @@ import { useAuth } from '@/context/auth-context'
 
 import { SidebarLinkList } from './sidebar'
 
-// "Priya Perera" -> "PP". Used when there is no profile photo.
 function initialsOf(name = '') {
   return name
     .split(' ')
@@ -79,7 +78,6 @@ function UserMenu() {
   )
 }
 
-// The menu button and slide-out panel, shown only on small screens.
 function MobileNav() {
   const [isOpen, setIsOpen] = useState(false)
 

@@ -13,8 +13,6 @@ export function LoginPage() {
   const { signIn } = useAuth()
   const navigate = useNavigate()
 
-  // One piece of state holding the whole form, so adding a field later
-  // does not mean adding another useState.
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -25,7 +23,6 @@ export function LoginPage() {
   }
 
   async function handleSubmit(event) {
-    // Stops the browser reloading the page, which is its default for forms.
     event.preventDefault()
 
     setError('')
@@ -33,7 +30,6 @@ export function LoginPage() {
 
     try {
       const user = await signIn(form)
-      // Managers land on the dashboard, team members on their own reports.
       navigate(homePathFor(user), { replace: true })
     } catch (failure) {
       setError(failure.message)

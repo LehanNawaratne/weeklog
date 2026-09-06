@@ -2,10 +2,6 @@ import { CalendarDays } from 'lucide-react'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-/**
- * The centred card used by the sign in and register pages.
- * Kept in one place so both pages stay identical if the branding changes.
- */
 export function AuthShell({ title, description, children, footer }) {
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
