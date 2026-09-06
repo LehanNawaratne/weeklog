@@ -1,4 +1,4 @@
-import { CalendarDays, LogOut, Menu, Settings, User } from 'lucide-react'
+import { Bell, CalendarDays, LogOut, Menu, Settings, User } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -26,6 +26,14 @@ function initialsOf(name = '') {
     .join('')
 }
 
+function greetingFor(date = new Date()) {
+  const hour = date.getHours()
+
+  if (hour < 12) return 'Good morning'
+  if (hour < 18) return 'Good afternoon'
+  return 'Good evening'
+}
+
 function UserMenu() {
   const { user, signOut } = useAuth()
   const navigate = useNavigate()
@@ -42,7 +50,7 @@ function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="hover:bg-secondary flex items-center gap-3 rounded-lg p-1.5 pr-3 transition-colors">
+        <button className="bg-card hover:bg-secondary flex items-center gap-2.5 rounded-full p-1.5 pr-4 transition-colors">
           <Avatar className="size-8">
             <AvatarFallback className="bg-brand text-brand-foreground text-xs font-semibold">
               {initialsOf(user?.name)}
@@ -84,34 +92,46 @@ function MobileNav() {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="md:hidden">
+        <Button variant="ghost" size="icon" className="rounded-full md:hidden">
           <Menu className="size-5" />
           <span className="sr-only">Open menu</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-64 p-0">
+      <SheetContent side="left" className="w-64">
         <SheetHeader>
-          <SheetTitle>Menu</SheetTitle>
+          <SheetTitle className="flex items-center gap-2.5">
+            <span className="bg-brand text-brand-foreground flex size-8 items-center justify-center rounded-xl">
+              <CalendarDays className="size-4" />
+            </span>
+            WeekLog
+          </SheetTitle>
         </SheetHeader>
-        <SidebarLinkList onNavigate={() => setIsOpen(false)} />
+        <div className="px-3">
+          <SidebarLinkList onNavigate={() => setIsOpen(false)} />
+        </div>
       </SheetContent>
     </Sheet>
   )
 }
 
 export function Topbar() {
+  const { user } = useAuth()
+  const firstName = user?.name?.split(' ')[0] ?? ''
+
   return (
-    <header className="bg-card border-border flex h-14 shrink-0 items-center gap-2 border-b px-3 sm:px-4">
+    <header className="flex shrink-0 items-center gap-3 px-4 pt-4 pb-2 sm:px-6 sm:pt-6">
       <MobileNav />
 
-      <Link to="/" className="flex items-center gap-2">
-        <span className="bg-brand text-brand-foreground flex size-7 items-center justify-center rounded-lg">
-          <CalendarDays className="size-4" />
-        </span>
-        <span className="text-base font-semibold tracking-tight">WeekLog</span>
-      </Link>
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-lg font-medium tracking-tight sm:text-xl">
+          {greetingFor()}, {firstName}
+        </p>
+      </div>
 
-      <div className="flex-1" />
+      <Button variant="ghost" size="icon" className="bg-card hover:bg-secondary rounded-full">
+        <Bell className="size-4" />
+        <span className="sr-only">Notifications</span>
+      </Button>
 
       <UserMenu />
     </header>
