@@ -1,4 +1,4 @@
-import { AlertCircle, Loader2, Lock } from 'lucide-react'
+import { AlertCircle, Loader2, Lock, Send } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -16,7 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
-import { createReport, getMyReport, updateReport } from '@/api/reports'
+import { createReport, getMyReport, submitReport, updateReport } from '@/api/reports'
 import { toFieldErrors } from '@/lib/form-errors'
 import { formatWeekRange, toDateInputValue, today } from '@/lib/week'
 
@@ -72,13 +72,21 @@ function toFormState(report) {
   }
 }
 
+function withText(items) {
+  return items
+    .map((item) => ({ ...item, text: item.text.trim() }))
+    .filter((item) => item.text.length > 0)
+}
+
 function toPayload(form) {
   return {
     projectId: form.projectId,
     tasksCompleted: form.tasksCompleted.map(taskToPayload),
-    tasksPlannedNextWeek: form.tasksPlannedNextWeek,
-    blockers: form.blockers,
-    achievements: form.achievements,
+    tasksPlannedNextWeek: form.tasksPlannedNextWeek
+      .map((task) => task.trim())
+      .filter((task) => task.length > 0),
+    blockers: withText(form.blockers),
+    achievements: withText(form.achievements),
     hoursByType: Object.fromEntries(
       HOURS_FIELDS.map(({ name }) => [name, Number(form.hoursByType[name]) || 0])
     ),
@@ -205,12 +213,15 @@ function LockedReport({ report }) {
 }
 
 function EditReport({ id }) {
+  const navigate = useNavigate()
+
   const [report, setReport] = useState(null)
   const [form, setForm] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
   const [isSaving, setIsSaving] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -242,8 +253,28 @@ function EditReport({ id }) {
     }))
   }
 
-  async function handleSave(event) {
-    event.preventDefault()
+  function firstProblem() {
+    const unnamed = form.tasksCompleted.findIndex((task) => !task.taskName.trim())
+
+    return unnamed === -1 ? null : `Task ${unnamed + 1} needs a name before this can be saved.`
+  }
+
+  function showFailure(failure) {
+    const problems = toFieldErrors(failure)
+    setFieldErrors(problems)
+
+    if (Object.keys(problems).length === 0) {
+      toast.error(failure.message)
+    }
+  }
+
+  async function handleSaveDraft() {
+    const problem = firstProblem()
+
+    if (problem) {
+      toast.error(problem)
+      return
+    }
 
     setFieldErrors({})
     setIsSaving(true)
@@ -252,14 +283,39 @@ function EditReport({ id }) {
       await updateReport(id, toPayload(form))
       toast.success('Draft saved')
     } catch (failure) {
-      const problems = toFieldErrors(failure)
-      setFieldErrors(problems)
-
-      if (Object.keys(problems).length === 0) {
-        toast.error(failure.message)
-      }
+      showFailure(failure)
     } finally {
       setIsSaving(false)
+    }
+  }
+
+  async function handleSubmitForReview(event) {
+    event.preventDefault()
+
+    const problem = firstProblem()
+
+    if (problem) {
+      toast.error(problem)
+      return
+    }
+
+    if (form.tasksCompleted.length === 0) {
+      toast.error('Add at least one completed task before sending this for review.')
+      return
+    }
+
+    setFieldErrors({})
+    setIsSubmitting(true)
+
+    try {
+      await updateReport(id, toPayload(form))
+      await submitReport(id)
+      toast.success('Report sent to your manager')
+      navigate('/my-reports')
+    } catch (failure) {
+      showFailure(failure)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -287,7 +343,7 @@ function EditReport({ id }) {
   }
 
   return (
-    <form onSubmit={handleSave} className="max-w-3xl">
+    <form onSubmit={handleSubmitForReview} className="max-w-3xl">
       <PageHeader
         title={`Week of ${formatWeekRange(report.weekStart)}`}
         subtitle="The week cannot be changed once a report exists."
@@ -436,8 +492,18 @@ function EditReport({ id }) {
           </CardContent>
         </Card>
 
-        <div className="flex gap-2">
-          <Button type="submit" disabled={isSaving}>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="submit" disabled={isSaving || isSubmitting}>
+            {isSubmitting ? <Loader2 className="animate-spin" /> : <Send className="size-4" />}
+            Submit for review
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleSaveDraft}
+            disabled={isSaving || isSubmitting}
+          >
             {isSaving ? <Loader2 className="animate-spin" /> : null}
             Save as draft
           </Button>
@@ -445,6 +511,10 @@ function EditReport({ id }) {
           <Button asChild type="button" variant="ghost">
             <Link to="/my-reports">Back to my reports</Link>
           </Button>
+
+          <p className="text-muted-foreground w-full text-xs sm:w-auto sm:flex-1 sm:text-right">
+            Submitting saves a snapshot your manager reviews.
+          </p>
         </div>
       </div>
     </form>
