@@ -4,7 +4,6 @@ import { toast } from 'sonner'
 
 import { FormField } from '@/components/form-field'
 import { PageHeader } from '@/components/page-header'
-import { ProjectPicker } from '@/components/project-picker'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -211,7 +210,6 @@ export function ProjectsPage() {
   const [editingProject, setEditingProject] = useState(null)
   const [deletingProject, setDeletingProject] = useState(null)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [previewProjectId, setPreviewProjectId] = useState('')
 
   async function handleSaved() {
     setEditingProject(null)
@@ -273,21 +271,6 @@ export function ProjectsPage() {
           </CardContent>
         </Card>
       </div>
-
-      <Card className="mt-4 border-dashed">
-        <CardHeader>
-          <CardTitle className="text-base">Picker preview</CardTitle>
-          <CardDescription>
-            Temporary. This is the dropdown the weekly report form will use in B3 — add a project
-            above and it appears here straight away.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="max-w-xs">
-          <FormField id="preview-project" label="Project">
-            <ProjectPicker value={previewProjectId} onChange={setPreviewProjectId} />
-          </FormField>
-        </CardContent>
-      </Card>
 
       <AlertDialog
         open={Boolean(deletingProject)}
