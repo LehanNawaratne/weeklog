@@ -6,6 +6,9 @@ import { toast } from 'sonner'
 import { FormField } from '@/components/form-field'
 import { PageHeader } from '@/components/page-header'
 import { ProjectPicker } from '@/components/project-picker'
+import { FlaggedList } from '@/components/report/flagged-list'
+import { StringList } from '@/components/report/string-list'
+import { TaskTable } from '@/components/report/task-table'
 import { StatusBadge } from '@/components/status-badge'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -34,12 +37,31 @@ function weekLabelFor(value) {
   return Number.isNaN(parsed.getTime()) ? null : formatWeekRange(parsed)
 }
 
+const TASK_NUMBER_FIELDS = ['plannedPct', 'actualPct', 'timePlanned', 'timeSpent']
+
+function taskToFormState(task) {
+  return {
+    ...task,
+    ...Object.fromEntries(TASK_NUMBER_FIELDS.map((field) => [field, String(task[field] ?? 0)]))
+  }
+}
+
+function taskToPayload(task) {
+  return {
+    taskName: task.taskName,
+    priority: task.priority,
+    status: task.status,
+    output: task.output ?? '',
+    ...Object.fromEntries(TASK_NUMBER_FIELDS.map((field) => [field, Number(task[field]) || 0]))
+  }
+}
+
 function toFormState(report) {
   const hours = report.hoursByType ?? {}
 
   return {
     projectId: report.projectId,
-    tasksCompleted: report.tasksCompleted ?? [],
+    tasksCompleted: (report.tasksCompleted ?? []).map(taskToFormState),
     tasksPlannedNextWeek: report.tasksPlannedNextWeek ?? [],
     blockers: report.blockers ?? [],
     achievements: report.achievements ?? [],
@@ -53,7 +75,7 @@ function toFormState(report) {
 function toPayload(form) {
   return {
     projectId: form.projectId,
-    tasksCompleted: form.tasksCompleted,
+    tasksCompleted: form.tasksCompleted.map(taskToPayload),
     tasksPlannedNextWeek: form.tasksPlannedNextWeek,
     blockers: form.blockers,
     achievements: form.achievements,
@@ -294,6 +316,75 @@ function EditReport({ id }) {
                 onChange={(value) => updateField('projectId', value)}
               />
             </FormField>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Tasks completed</CardTitle>
+            <CardDescription>
+              At least one is needed before this report can be sent for review.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <TaskTable
+              value={form.tasksCompleted}
+              onChange={(next) => updateField('tasksCompleted', next)}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Tasks planned for next week</CardTitle>
+            <CardDescription>Optional. What you intend to pick up.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <StringList
+              value={form.tasksPlannedNextWeek}
+              onChange={(next) => updateField('tasksPlannedNextWeek', next)}
+              placeholder="Finish the refund flow"
+              addLabel="Add a task"
+              emptyLabel="Nothing planned yet."
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Blockers</CardTitle>
+            <CardDescription>
+              Optional. Star the one holding you back the most.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FlaggedList
+              value={form.blockers}
+              onChange={(next) => updateField('blockers', next)}
+              flagField="isKeyIssue"
+              flagLabel="Key issue"
+              placeholder="Waiting on the payment provider sandbox"
+              addLabel="Add a blocker"
+              emptyLabel="No blockers this week."
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Achievements</CardTitle>
+            <CardDescription>Optional. Star the one you are proudest of.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FlaggedList
+              value={form.achievements}
+              onChange={(next) => updateField('achievements', next)}
+              flagField="isKeyAchievement"
+              flagLabel="Key highlight"
+              placeholder="Checkout errors down 40%"
+              addLabel="Add an achievement"
+              emptyLabel="Nothing recorded yet."
+            />
           </CardContent>
         </Card>
 
