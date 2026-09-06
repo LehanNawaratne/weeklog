@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { homePathFor, useAuth } from '@/context/auth-context'
 
-// Shown for any address that does not match a route.
 export function NotFoundPage() {
   const { user } = useAuth()
 

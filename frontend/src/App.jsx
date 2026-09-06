@@ -21,24 +21,11 @@ import { TeamMembersPage } from '@/pages/team-members'
 import { TeamReportsPage } from '@/pages/team-reports'
 import { UserManagementPage } from '@/pages/user-management'
 
-// "/" has no page of its own - it forwards you to the right home page.
 function HomeRedirect() {
   const { user } = useAuth()
   return <Navigate to={homePathFor(user)} replace />
 }
 
-/**
- * Every address in the app, in one place.
- *
- * Routes are nested, and each layer adds something:
- *   PublicOnlyRoute -> only for people who are NOT signed in
- *   ProtectedRoute  -> must be signed in
- *     AppLayout     -> draws the top bar and sidebar around the page
- *       ProtectedRoute role="manager" -> must also be a manager
- *
- * Because the manager pages sit inside the shared layout, the top bar and
- * sidebar are written once and reused by every signed-in page.
- */
 export default function App() {
   return (
     <BrowserRouter>
@@ -54,14 +41,12 @@ export default function App() {
               <Route path="/" element={<HomeRedirect />} />
 
               <Route element={<AppLayout />}>
-                {/* Anyone signed in, managers included */}
                 <Route path="/my-reports" element={<MyReportsPage />} />
                 <Route path="/my-reports/new" element={<ReportEditorPage />} />
                 <Route path="/my-reports/:id/edit" element={<ReportEditorPage />} />
                 <Route path="/reports/:id" element={<ReportDetailPage />} />
                 <Route path="/settings" element={<AccountSettingsPage />} />
 
-                {/* Managers only */}
                 <Route element={<ProtectedRoute role="manager" />}>
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/dashboard/reports" element={<TeamReportsPage />} />
@@ -74,11 +59,9 @@ export default function App() {
               </Route>
             </Route>
 
-            {/* Anything that matched nothing above */}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
 
-          {/* Renders the small pop-up messages triggered by toast(...) */}
           <Toaster position="top-right" />
         </TooltipProvider>
       </AuthProvider>

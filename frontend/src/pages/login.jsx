@@ -3,21 +3,23 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { AuthShell } from '@/components/auth-shell'
+import { FormField } from '@/components/form-field'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { homePathFor, useAuth } from '@/context/auth-context'
+import { toFieldErrors } from '@/lib/form-errors'
 
 export function LoginPage() {
   const { signIn } = useAuth()
   const navigate = useNavigate()
 
-  // One piece of state holding the whole form, so adding a field later
-  // does not mean adding another useState.
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const showBanner = error && Object.keys(fieldErrors).length === 0
 
   function handleChange(event) {
     const { name, value } = event.target
@@ -25,18 +27,18 @@ export function LoginPage() {
   }
 
   async function handleSubmit(event) {
-    // Stops the browser reloading the page, which is its default for forms.
     event.preventDefault()
 
     setError('')
+    setFieldErrors({})
     setIsSubmitting(true)
 
     try {
       const user = await signIn(form)
-      // Managers land on the dashboard, team members on their own reports.
       navigate(homePathFor(user), { replace: true })
     } catch (failure) {
       setError(failure.message)
+      setFieldErrors(toFieldErrors(failure))
     } finally {
       setIsSubmitting(false)
     }
@@ -56,17 +58,15 @@ export function LoginPage() {
       }
     >
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {error ? (
+        {showBanner ? (
           <Alert variant="destructive">
             <AlertCircle />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         ) : null}
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="email">Email</Label>
+        <FormField id="email" label="Email" error={fieldErrors.email}>
           <Input
-            id="email"
             name="email"
             type="email"
             autoComplete="email"
@@ -75,12 +75,10 @@ export function LoginPage() {
             onChange={handleChange}
             required
           />
-        </div>
+        </FormField>
 
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="password">Password</Label>
+        <FormField id="password" label="Password" error={fieldErrors.password}>
           <Input
-            id="password"
             name="password"
             type="password"
             autoComplete="current-password"
@@ -88,7 +86,7 @@ export function LoginPage() {
             onChange={handleChange}
             required
           />
-        </div>
+        </FormField>
 
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? <Loader2 className="animate-spin" /> : null}
