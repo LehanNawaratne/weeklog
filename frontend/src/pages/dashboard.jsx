@@ -1,22 +1,11 @@
-import { CheckCircle2, Stamp } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { CheckCircle2 } from 'lucide-react'
 
 import { PageHeader } from '@/components/page-header'
 import { PagePlaceholder } from '@/components/page-placeholder'
-import { Button } from '@/components/ui/button'
+import { TeamReportTable } from '@/components/report/team-report-table'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table'
 import { useTeamReports } from '@/hooks/use-team-reports'
-import { formatDateTime } from '@/lib/format'
-import { formatWeekRange } from '@/lib/week'
 
 const AWAITING_REVIEW = { status: 'submitted', page: 1, limit: 20 }
 
@@ -58,54 +47,7 @@ function AwaitingReview() {
         ) : null}
 
         {!error && !isLoading && reports.length > 0 ? (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Team member</TableHead>
-                  <TableHead className="whitespace-nowrap">Week</TableHead>
-                  <TableHead>Project</TableHead>
-                  <TableHead className="text-right">Tasks</TableHead>
-                  <TableHead className="text-right">Blockers</TableHead>
-                  <TableHead className="whitespace-nowrap">Submitted</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {reports.map((report) => (
-                  <TableRow key={report.id}>
-                    <TableCell className="font-medium whitespace-nowrap">
-                      {report.user?.name ?? '—'}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {formatWeekRange(report.weekStart)}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {report.project?.name ?? '—'}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">{report.taskCount}</TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {report.blockerCount}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground whitespace-nowrap">
-                      {report.submittedAt ? formatDateTime(report.submittedAt) : '—'}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex justify-end">
-                        <Button asChild size="sm">
-                          <Link to={`/dashboard/reports/${report.id}/review`}>
-                            <Stamp className="size-4" />
-                            Review
-                          </Link>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <TeamReportTable reports={reports} showStatus={false} />
         ) : null}
       </CardContent>
     </Card>
