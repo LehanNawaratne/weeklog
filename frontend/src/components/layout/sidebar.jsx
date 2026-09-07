@@ -1,6 +1,7 @@
-import { CalendarDays, ChevronRight } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { Link, NavLink } from 'react-router-dom'
 
+import { Logo } from '@/components/logo'
 import { useAuth } from '@/context/auth-context'
 import { cn } from '@/lib/utils'
 
@@ -45,9 +46,7 @@ export function Sidebar() {
   return (
     <aside className="bg-sidebar hidden w-60 shrink-0 flex-col p-3 md:flex">
       <Link to="/" className="mb-5 flex items-center gap-2.5 px-4 py-3">
-        <span className="bg-brand text-brand-foreground flex size-8 items-center justify-center rounded-xl">
-          <CalendarDays className="size-4" />
-        </span>
+        <Logo />
         <span className="text-base font-semibold tracking-tight">WeekLog</span>
       </Link>
 
