@@ -7,6 +7,8 @@ import {
 } from '@/components/ui/select'
 import { useProjects } from '@/hooks/use-projects'
 
+export const ANY_PROJECT = 'any'
+
 function placeholderFor({ isLoading, error, projects }) {
   if (isLoading) return 'Loading projects…'
   if (error) return 'Could not load projects'
@@ -14,10 +16,11 @@ function placeholderFor({ isLoading, error, projects }) {
   return 'Choose a project'
 }
 
-export function ProjectPicker({ value, onChange, disabled, ...props }) {
+export function ProjectPicker({ value, onChange, disabled, allLabel, ...props }) {
   const { projects, isLoading, error } = useProjects()
 
-  const isUnavailable = isLoading || Boolean(error) || projects.length === 0
+  const isEmpty = isLoading || Boolean(error) || projects.length === 0
+  const isUnavailable = allLabel ? isLoading || Boolean(error) : isEmpty
 
   return (
     <Select value={value ?? ''} onValueChange={onChange} disabled={disabled || isUnavailable}>
@@ -26,6 +29,8 @@ export function ProjectPicker({ value, onChange, disabled, ...props }) {
       </SelectTrigger>
 
       <SelectContent>
+        {allLabel ? <SelectItem value={ANY_PROJECT}>{allLabel}</SelectItem> : null}
+
         {projects.map((project) => (
           <SelectItem key={project.id} value={project.id}>
             {project.name}

@@ -11,7 +11,7 @@ import {
 export const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutGrid, role: 'manager', end: true },
   { to: '/dashboard/reports', label: 'Team reports', icon: ClipboardList, role: 'manager' },
-  { to: '/my-reports', label: 'My reports', icon: FileText },
+  { to: '/my-reports', label: 'My reports', icon: FileText, role: 'member' },
   { to: '/projects', label: 'Projects', icon: FolderKanban, role: 'manager' },
   { to: '/team', label: 'Team', icon: Users, role: 'manager' },
   { to: '/users', label: 'User management', icon: UserCog, role: 'manager' },

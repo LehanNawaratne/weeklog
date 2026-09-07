@@ -130,7 +130,7 @@ export async function getSummary(requestedWeek) {
   const submittedInWeek = { weekStart, submittedAt: { $ne: null } };
 
   const [expected, submitted, late, needsCorrection, blockers] = await Promise.all([
-    User.countDocuments({ isActive: true }),
+    User.countDocuments({ isActive: true, role: 'member' }),
     Report.countDocuments(submittedInWeek),
     Report.countDocuments({ weekStart, submittedAt: { $gt: deadline } }),
     Report.countDocuments({ status: 'needs_correction' }),

@@ -1,8 +1,9 @@
-import { Bell, CalendarDays, LogOut, Menu, Settings, User } from 'lucide-react'
+import { Bell, LogOut, Menu, Settings, User } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
+import { Logo } from '@/components/logo'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,17 +15,9 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { useAuth } from '@/context/auth-context'
+import { initialsOf } from '@/lib/initials'
 
 import { SidebarLinkList } from './sidebar'
-
-function initialsOf(name = '') {
-  return name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0].toUpperCase())
-    .join('')
-}
 
 function greetingFor(date = new Date()) {
   const hour = date.getHours()
@@ -100,9 +93,7 @@ function MobileNav() {
       <SheetContent side="left" className="w-64">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2.5">
-            <span className="bg-brand text-brand-foreground flex size-8 items-center justify-center rounded-xl">
-              <CalendarDays className="size-4" />
-            </span>
+            <Logo />
             WeekLog
           </SheetTitle>
         </SheetHeader>
