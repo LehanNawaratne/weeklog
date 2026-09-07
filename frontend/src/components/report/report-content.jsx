@@ -101,7 +101,7 @@ function TaskList({ tasks }) {
   )
 }
 
-function FlaggedItems({ items, flagField, flagLabel, emptyLabel }) {
+export function FlaggedItems({ items, flagField, flagLabel, emptyLabel }) {
   if (items.length === 0) {
     return <Empty>{emptyLabel}</Empty>
   }

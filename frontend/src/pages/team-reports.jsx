@@ -1,6 +1,6 @@
-import { CalendarClock, ChevronLeft, ChevronRight, SearchX } from 'lucide-react'
+import { CalendarClock, ChevronLeft, ChevronRight, Columns3, SearchX } from 'lucide-react'
 import { useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 
 import { PageHeader } from '@/components/page-header'
 import { ReportFilters } from '@/components/report-filters'
@@ -129,7 +129,14 @@ export function TeamReportsPage() {
       <PageHeader
         title="Team reports"
         subtitle="Every member's report, filtered by week, project or status."
-      />
+      >
+        <Button asChild variant="outline">
+          <Link to={singleWeek ? `/dashboard/compare?week=${singleWeek}` : '/dashboard/compare'}>
+            <Columns3 className="size-4" />
+            Compare sections
+          </Link>
+        </Button>
+      </PageHeader>
 
       <ReportFilters
         value={filters}

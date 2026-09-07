@@ -17,6 +17,7 @@ import { RegisterPage } from '@/pages/register'
 import { ReportDetailPage } from '@/pages/report-detail'
 import { ReportEditorPage } from '@/pages/report-editor'
 import { ReportReviewPage } from '@/pages/report-review'
+import { SectionComparePage } from '@/pages/section-compare'
 import { TeamMembersPage } from '@/pages/team-members'
 import { TeamReportsPage } from '@/pages/team-reports'
 import { UserManagementPage } from '@/pages/user-management'
@@ -53,6 +54,7 @@ export default function App() {
                 <Route element={<ProtectedRoute role="manager" />}>
                   <Route path="/dashboard" element={<DashboardPage />} />
                   <Route path="/dashboard/reports" element={<TeamReportsPage />} />
+                  <Route path="/dashboard/compare" element={<SectionComparePage />} />
                   <Route path="/dashboard/reports/:id/review" element={<ReportReviewPage />} />
                   <Route path="/projects" element={<ProjectsPage />} />
                   <Route path="/team" element={<TeamMembersPage />} />
