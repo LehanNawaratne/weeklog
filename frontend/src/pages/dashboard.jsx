@@ -1,6 +1,7 @@
 import { CheckCircle2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
+import { ChatWidget } from '@/components/assistant/chat-widget'
 import { ActivityFeed } from '@/components/dashboard/activity-feed'
 import {
   StatusByMemberChart,
@@ -98,6 +99,8 @@ export function DashboardPage() {
 
         <ActivityFeed />
       </div>
+
+      <ChatWidget />
     </>
   )
 }
