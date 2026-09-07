@@ -15,17 +15,9 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { useAuth } from '@/context/auth-context'
+import { initialsOf } from '@/lib/initials'
 
 import { SidebarLinkList } from './sidebar'
-
-function initialsOf(name = '') {
-  return name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0].toUpperCase())
-    .join('')
-}
 
 function greetingFor(date = new Date()) {
   const hour = date.getHours()

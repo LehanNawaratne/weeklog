@@ -40,10 +40,14 @@ function weekLabelFor(value) {
 
 const TASK_NUMBER_FIELDS = ['plannedPct', 'actualPct', 'timePlanned', 'timeSpent']
 
+function asInputValue(number) {
+  return number ? String(number) : ''
+}
+
 function taskToFormState(task) {
   return {
     ...task,
-    ...Object.fromEntries(TASK_NUMBER_FIELDS.map((field) => [field, String(task[field] ?? 0)]))
+    ...Object.fromEntries(TASK_NUMBER_FIELDS.map((field) => [field, asInputValue(task[field])]))
   }
 }
 
@@ -67,7 +71,7 @@ function toFormState(report) {
     blockers: report.blockers ?? [],
     achievements: report.achievements ?? [],
     hoursByType: Object.fromEntries(
-      HOURS_FIELDS.map(({ name }) => [name, String(hours[name] ?? 0)])
+      HOURS_FIELDS.map(({ name }) => [name, asInputValue(hours[name])])
     ),
     notes: report.notes ?? ''
   }
@@ -471,6 +475,8 @@ function EditReport({ id }) {
                   step="0.5"
                   value={form.hoursByType[name]}
                   onChange={handleHoursChange}
+                  onFocus={(event) => event.target.select()}
+                  placeholder="0"
                 />
               </FormField>
             ))}

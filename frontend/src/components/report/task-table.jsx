@@ -33,11 +33,11 @@ export const TASK_STATUSES = [
 export const emptyTask = {
   taskName: '',
   priority: 'medium',
-  plannedPct: '100',
-  actualPct: '0',
+  plannedPct: '',
+  actualPct: '',
   status: 'in_progress',
-  timePlanned: '0',
-  timeSpent: '0',
+  timePlanned: '',
+  timeSpent: '',
   output: ''
 }
 
@@ -50,6 +50,8 @@ function NumberCell({ value, onChange, label, max }) {
       step={max === 100 ? '5' : '0.5'}
       value={value}
       onChange={(event) => onChange(event.target.value)}
+      onFocus={(event) => event.target.select()}
+      placeholder="0"
       aria-label={label}
       className="w-20"
     />

@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { AuthProvider, homePathFor, useAuth } from '@/context/auth-context'
 
+import { AcceptInvitePage } from '@/pages/accept-invite'
 import { AccountSettingsPage } from '@/pages/account-settings'
 import { DashboardPage } from '@/pages/dashboard'
 import { LoginPage } from '@/pages/login'
@@ -36,6 +37,7 @@ export default function App() {
             <Route element={<PublicOnlyRoute />}>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/accept-invite" element={<AcceptInvitePage />} />
             </Route>
 
             <Route element={<ProtectedRoute />}>
