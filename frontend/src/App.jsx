@@ -41,9 +41,12 @@ export default function App() {
               <Route path="/" element={<HomeRedirect />} />
 
               <Route element={<AppLayout />}>
-                <Route path="/my-reports" element={<MyReportsPage />} />
-                <Route path="/my-reports/new" element={<ReportEditorPage />} />
-                <Route path="/my-reports/:id/edit" element={<ReportEditorPage />} />
+                <Route element={<ProtectedRoute role="member" />}>
+                  <Route path="/my-reports" element={<MyReportsPage />} />
+                  <Route path="/my-reports/new" element={<ReportEditorPage />} />
+                  <Route path="/my-reports/:id/edit" element={<ReportEditorPage />} />
+                </Route>
+
                 <Route path="/reports/:id" element={<ReportDetailPage />} />
                 <Route path="/settings" element={<AccountSettingsPage />} />
 

@@ -25,8 +25,13 @@ export const reportRoutes = Router();
 
 reportRoutes.use(requireAuth);
 
-reportRoutes.get('/mine', validate(listReportsQuerySchema, 'query'), getMyReports);
-reportRoutes.get('/mine/:id', getMyReportById);
+reportRoutes.get(
+  '/mine',
+  requireRole('member'),
+  validate(listReportsQuerySchema, 'query'),
+  getMyReports
+);
+reportRoutes.get('/mine/:id', requireRole('member'), getMyReportById);
 reportRoutes.get('/:id/versions', getReportVersions);
 
 reportRoutes.get(
@@ -38,9 +43,9 @@ reportRoutes.get(
 
 reportRoutes.get('/:id', requireRole('manager'), getReportDetail);
 
-reportRoutes.post('/', validate(createReportSchema), addReport);
-reportRoutes.put('/:id', validate(updateReportSchema), editReport);
-reportRoutes.post('/:id/submit', submitReportForReview);
+reportRoutes.post('/', requireRole('member'), validate(createReportSchema), addReport);
+reportRoutes.put('/:id', requireRole('member'), validate(updateReportSchema), editReport);
+reportRoutes.post('/:id/submit', requireRole('member'), submitReportForReview);
 reportRoutes.post(
   '/:id/review',
   requireRole('manager'),

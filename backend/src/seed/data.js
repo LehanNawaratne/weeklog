@@ -164,14 +164,6 @@ export const contentLibrary = {
 };
 
 export const weeklyPlan = {
-  priya: [
-    { project: 'tooling', status: 'approved' },
-    { project: 'tooling', status: 'approved' },
-    { project: 'clientA', status: 'approved' },
-    { project: 'tooling', status: 'approved' },
-    { project: 'tooling', status: 'approved' },
-    { project: 'tooling', status: 'submitted' }
-  ],
   sam: [
     { project: 'clientA', status: 'approved' },
     { project: 'clientA', status: 'approved', corrected: true, late: true },

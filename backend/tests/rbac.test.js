@@ -154,6 +154,40 @@ describe('role based access control', () => {
     });
   });
 
+  describe('a manager has no personal reports', () => {
+    it('refuses to list them', async () => {
+      const agent = await signIn(manager.email);
+      const response = await agent.get('/api/reports/mine');
+
+      assert.equal(response.status, 403);
+    });
+
+    it('refuses to create one', async () => {
+      const agent = await signIn(manager.email);
+      const response = await agent
+        .post('/api/reports')
+        .send({ weekStart: '2026-08-31', projectId: ownerReport.projectId.toString() });
+
+      assert.equal(response.status, 403);
+    });
+
+    it('refuses to submit one', async () => {
+      const agent = await signIn(manager.email);
+      const response = await agent.post(`/api/reports/${ownerReport._id}/submit`);
+
+      assert.equal(response.status, 403);
+    });
+
+    it('still lets a team member create one', async () => {
+      const agent = await signIn(owner.email);
+      const response = await agent
+        .post('/api/reports')
+        .send({ weekStart: '2026-09-14', projectId: ownerReport.projectId.toString() });
+
+      assert.equal(response.status, 201);
+    });
+  });
+
   describe('signed out requests are rejected', () => {
     it('refuses a report list with no session', async () => {
       const response = await request(app).get('/api/reports/mine');
