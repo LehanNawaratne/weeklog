@@ -10,6 +10,8 @@ import request from 'supertest';
 import { app } from '../src/app.js';
 import { Project } from '../src/models/Project.js';
 import { Report } from '../src/models/Report.js';
+import { ReportVersion } from '../src/models/ReportVersion.js';
+import { ReviewComment } from '../src/models/ReviewComment.js';
 import { User } from '../src/models/User.js';
 
 const PASSWORD = 'Password123';
@@ -49,7 +51,13 @@ describe('role based access control', () => {
 
   before(async () => {
     await mongoose.connect(testDatabaseUri());
-    await Promise.all([User.deleteMany({}), Project.deleteMany({}), Report.deleteMany({})]);
+    await Promise.all([
+      User.deleteMany({}),
+      Project.deleteMany({}),
+      Report.deleteMany({}),
+      ReportVersion.deleteMany({}),
+      ReviewComment.deleteMany({})
+    ]);
 
     manager = await createUser('Test Manager', 'manager@rbac.test', 'manager');
     owner = await createUser('Report Owner', 'owner@rbac.test', 'member');
@@ -71,7 +79,13 @@ describe('role based access control', () => {
   });
 
   after(async () => {
-    await Promise.all([User.deleteMany({}), Project.deleteMany({}), Report.deleteMany({})]);
+    await Promise.all([
+      User.deleteMany({}),
+      Project.deleteMany({}),
+      Report.deleteMany({}),
+      ReportVersion.deleteMany({}),
+      ReviewComment.deleteMany({})
+    ]);
     await mongoose.connection.close();
   });
 
@@ -194,6 +208,62 @@ describe('role based access control', () => {
         .send({ weekStart: '2026-09-14', projectId: ownerReport.projectId.toString() });
 
       assert.equal(response.status, 201);
+    });
+  });
+
+  describe('a promoted member cannot review their own report', () => {
+    let promoted;
+    let ownReport;
+
+    before(async () => {
+      promoted = await createUser('Promoted Member', 'promoted@rbac.test', 'member');
+
+      ownReport = await Report.create({
+        userId: promoted._id,
+        projectId: ownerReport.projectId,
+        weekStart: new Date('2026-08-24T00:00:00Z'),
+        weekEnd: new Date('2026-08-30T00:00:00Z'),
+        status: 'submitted',
+        submittedAt: new Date('2026-08-28T09:00:00Z')
+      });
+
+      const version = await ReportVersion.create({
+        reportId: ownReport._id,
+        versionNumber: 1,
+        content: {}
+      });
+
+      ownReport.currentVersionId = version._id;
+      await ownReport.save();
+
+      await User.findByIdAndUpdate(promoted._id, { role: 'manager' });
+    });
+
+    it('refuses to approve it', async () => {
+      const agent = await signIn(promoted.email);
+      const response = await agent
+        .post(`/api/reports/${ownReport._id}/review`)
+        .send({ action: 'approve' });
+
+      assert.equal(response.status, 403);
+    });
+
+    it('refuses to request changes on it', async () => {
+      const agent = await signIn(promoted.email);
+      const response = await agent
+        .post(`/api/reports/${ownReport._id}/review`)
+        .send({ action: 'request_changes', comment: 'Looks fine to me' });
+
+      assert.equal(response.status, 403);
+    });
+
+    it('still lets a different manager review it', async () => {
+      const agent = await signIn(manager.email);
+      const response = await agent
+        .post(`/api/reports/${ownReport._id}/review`)
+        .send({ action: 'approve' });
+
+      assert.equal(response.status, 200);
     });
   });
 

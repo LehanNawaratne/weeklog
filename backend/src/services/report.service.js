@@ -222,6 +222,10 @@ export async function reviewReport(reportId, { action, comment }, managerId) {
     throw new ApiError(404, 'Report not found');
   }
 
+  if (report.userId.equals(managerId)) {
+    throw new ApiError(403, 'You cannot review your own report');
+  }
+
   if (report.status !== 'submitted') {
     throw new ApiError(409, `Only a submitted report can be reviewed, this one is ${report.status}`);
   }
