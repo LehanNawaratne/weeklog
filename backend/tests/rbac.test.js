@@ -136,6 +136,15 @@ describe('role based access control', () => {
       assert.equal(response.status, 403);
     });
 
+    it('refuses to chat with the assistant', async () => {
+      const agent = await signIn(intruder.email);
+      const response = await agent
+        .post('/api/assistant/chat')
+        .send({ messages: [{ role: 'user', content: 'What did the team do last week?' }] });
+
+      assert.equal(response.status, 403);
+    });
+
     it('refuses to change a role', async () => {
       const agent = await signIn(intruder.email);
       const response = await agent
@@ -197,6 +206,14 @@ describe('role based access control', () => {
 
     it('refuses a manager endpoint with no session', async () => {
       const response = await request(app).get('/api/users');
+
+      assert.equal(response.status, 401);
+    });
+
+    it('refuses the assistant with no session', async () => {
+      const response = await request(app)
+        .post('/api/assistant/chat')
+        .send({ messages: [{ role: 'user', content: 'Hello' }] });
 
       assert.equal(response.status, 401);
     });
