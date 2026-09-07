@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { FormField } from '@/components/form-field'
 import { PageHeader } from '@/components/page-header'
 import { ProjectPicker } from '@/components/project-picker'
+import { RequiredMark } from '@/components/required-mark'
 import { FlaggedList } from '@/components/report/flagged-list'
 import { StringList } from '@/components/report/string-list'
 import { TaskTable } from '@/components/report/task-table'
@@ -362,7 +363,10 @@ function EditReport({ id }) {
       <div className="flex flex-col gap-4">
         <Card>
           <CardHeader>
-            <CardTitle>Project</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              Project
+              <RequiredMark />
+            </CardTitle>
             <CardDescription>Which work this week belongs to.</CardDescription>
           </CardHeader>
           <CardContent className="max-w-sm">
@@ -377,7 +381,10 @@ function EditReport({ id }) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Tasks completed</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              Tasks completed
+              <RequiredMark />
+            </CardTitle>
             <CardDescription>
               At least one is needed before this report can be sent for review.
             </CardDescription>
@@ -393,7 +400,7 @@ function EditReport({ id }) {
         <Card>
           <CardHeader>
             <CardTitle>Tasks planned for next week</CardTitle>
-            <CardDescription>Optional. What you intend to pick up.</CardDescription>
+            <CardDescription>What you intend to pick up next week.</CardDescription>
           </CardHeader>
           <CardContent>
             <StringList
@@ -410,7 +417,7 @@ function EditReport({ id }) {
           <CardHeader>
             <CardTitle>Blockers</CardTitle>
             <CardDescription>
-              Optional. Star the one holding you back the most.
+              Star the one holding you back the most.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -429,7 +436,7 @@ function EditReport({ id }) {
         <Card>
           <CardHeader>
             <CardTitle>Achievements</CardTitle>
-            <CardDescription>Optional. Star the one you are proudest of.</CardDescription>
+            <CardDescription>Star the one you are proudest of.</CardDescription>
           </CardHeader>
           <CardContent>
             <FlaggedList
@@ -447,7 +454,7 @@ function EditReport({ id }) {
         <Card>
           <CardHeader>
             <CardTitle>Hours worked</CardTitle>
-            <CardDescription>Optional. Roughly how the week was spent.</CardDescription>
+            <CardDescription>Roughly how the week was spent.</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {HOURS_FIELDS.map(({ name, label }) => (
@@ -473,7 +480,7 @@ function EditReport({ id }) {
         <Card>
           <CardHeader>
             <CardTitle>Notes</CardTitle>
-            <CardDescription>Optional. Anything else worth knowing.</CardDescription>
+            <CardDescription>Anything else worth knowing.</CardDescription>
           </CardHeader>
           <CardContent>
             <FormField
