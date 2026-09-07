@@ -56,3 +56,11 @@ export function formatMembersForPrompt(members) {
 
   return members.map((member) => `- ${member.name} (userId: ${member._id})`).join('\n');
 }
+
+export function formatProjectsForPrompt(projects) {
+  if (!projects.length) {
+    return 'No projects.';
+  }
+
+  return projects.map((project) => `- ${project.name} (projectId: ${project._id})`).join('\n');
+}
