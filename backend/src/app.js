@@ -4,6 +4,7 @@ import express from 'express';
 import morgan from 'morgan';
 
 import { errorHandler, notFound } from './middleware/errorHandler.js';
+import { assistantRoutes } from './routes/assistant.routes.js';
 import { dashboardRoutes } from './routes/dashboard.routes.js';
 import { authRoutes } from './routes/auth.routes.js';
 import { projectRoutes } from './routes/project.routes.js';
@@ -20,6 +21,7 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+app.use('/api/assistant', assistantRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/projects', projectRoutes);
