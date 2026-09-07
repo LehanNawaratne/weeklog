@@ -1,15 +1,17 @@
-import { ChevronLeft, ChevronRight, SearchX } from 'lucide-react'
+import { CalendarClock, ChevronLeft, ChevronRight, SearchX } from 'lucide-react'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
 import { PageHeader } from '@/components/page-header'
 import { ReportFilters } from '@/components/report-filters'
 import { TeamReportTable } from '@/components/report/team-report-table'
+import { StatusBadge } from '@/components/status-badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useTeamReports } from '@/hooks/use-team-reports'
 import { useUsers } from '@/hooks/use-users'
+import { formatWeekRange, weekKey } from '@/lib/week'
 
 const PAGE_SIZE = 10
 const FILTER_KEYS = ['userId', 'projectId', 'from', 'to', 'status']
@@ -42,6 +44,63 @@ function paramsFromFilters(filters) {
   return params
 }
 
+function NotStartedList({ week, members }) {
+  const { reports, isLoading } = useTeamReports({ from: week, to: week, page: 1, limit: 100 })
+
+  if (isLoading) {
+    return <Skeleton className="h-10 w-full" />
+  }
+
+  const covered = new Set(reports.map((report) => report.user?.id))
+  const missing = members.filter((member) => !covered.has(member.id))
+
+  if (missing.length === 0) {
+    return (
+      <p className="text-muted-foreground text-sm">
+        Everyone on the team has a report for this week.
+      </p>
+    )
+  }
+
+  return (
+    <ul className="flex flex-wrap gap-2">
+      {missing.map((member) => (
+        <li
+          key={member.id}
+          className="border-border flex items-center gap-2 rounded-full border px-3 py-1.5"
+        >
+          <span className="text-sm font-medium">{member.name}</span>
+          <StatusBadge status="not_started" />
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function NotStarted({ week, members }) {
+  return (
+    <Card className="mt-4">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <CalendarClock className="size-4" />
+          Not started
+        </CardTitle>
+        <CardDescription>
+          {week
+            ? `Members with nothing submitted for the week of ${formatWeekRange(week)}. A private draft still counts as not started here, because managers cannot see drafts.`
+            : 'Pick a single week above to see who has not submitted yet.'}
+        </CardDescription>
+      </CardHeader>
+
+      {week ? (
+        <CardContent>
+          <NotStartedList week={week} members={members} />
+        </CardContent>
+      ) : null}
+    </Card>
+  )
+}
+
 export function TeamReportsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { members } = useUsers()
@@ -51,6 +110,11 @@ export function TeamReportsPage() {
 
   const hasFilters = FILTER_KEYS.some((key) => Boolean(filters[key]))
   const totalPages = pagination?.pages ?? 1
+
+  const singleWeek =
+    filters.from && (!filters.to || weekKey(filters.to) === weekKey(filters.from))
+      ? filters.from
+      : null
 
   function applyFilters(next) {
     setSearchParams(paramsFromFilters(next))
@@ -138,6 +202,8 @@ export function TeamReportsPage() {
           ) : null}
         </CardContent>
       </Card>
+
+      <NotStarted week={singleWeek} members={members} />
     </>
   )
 }
